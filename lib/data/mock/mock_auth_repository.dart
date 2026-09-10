@@ -62,6 +62,12 @@ class MockAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<void> sendPasswordResetEmail(String email) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    // Mock: no actual email is sent, just simulates network latency.
+  }
+
+  @override
   Future<void> logout() async {
     await Future.delayed(const Duration(milliseconds: 300));
     _currentUser = null;

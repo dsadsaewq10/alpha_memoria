@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
@@ -8,6 +9,7 @@ import '../../providers/auth_provider.dart';
 import '../../widgets/common/app_button.dart';
 import '../../widgets/common/app_card.dart';
 import '../../widgets/common/app_text_field.dart';
+import '../legal/terms_privacy_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -56,6 +58,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _birthdayController.text = DateFormatter.formatInputDate(picked);
       });
     }
+  }
+
+  void _openLegalDoc(int tabIndex) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TermsPrivacyScreen(initialTab: tabIndex),
+      ),
+    );
   }
 
   void _handleRegister() async {
@@ -226,9 +237,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           const SizedBox(width: 8),
                           Expanded(
-                            child: Text(
-                              'By signing up, you agree to our Terms of Service & Privacy Policy.',
-                              style: AppTextStyles.caption.copyWith(fontSize: 12),
+                            child: RichText(
+                              text: TextSpan(
+                                style: AppTextStyles.caption.copyWith(fontSize: 12),
+                                children: [
+                                  const TextSpan(text: 'By signing up, you agree to our '),
+                                  TextSpan(
+                                    text: 'Terms of Service',
+                                    style: const TextStyle(
+                                      color: AppColors.primary,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    recognizer: TapGestureRecognizer()
+                                      ..onTap = () => _openLegalDoc(0),
+                                  ),
+                                  const TextSpan(text: ' & '),
+                                  TextSpan(
+                                    text: 'Privacy Policy',
+                                    style: const TextStyle(
+                                      color: AppColors.primary,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    recognizer: TapGestureRecognizer()
+                                      ..onTap = () => _openLegalDoc(1),
+                                  ),
+                                  const TextSpan(text: '.'),
+                                ],
+                              ),
                             ),
                           ),
                         ],
