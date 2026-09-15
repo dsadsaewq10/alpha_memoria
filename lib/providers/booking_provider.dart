@@ -112,6 +112,11 @@ class BookingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<BookingModel> submitBookingReceipt(String? receiptFileName) async {
+    _draftReceiptFileName = receiptFileName;
+    return finalizeBooking();
+  }
+
   Future<BookingModel> finalizeBooking() async {
     _isLoading = true;
     notifyListeners();

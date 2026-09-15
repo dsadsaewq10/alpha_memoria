@@ -1,176 +1,137 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/constants/app_constants.dart';
-import '../../core/constants/app_text_styles.dart';
 import '../../core/routes/app_routes.dart';
+import '../../models/package_model.dart';
 import '../../providers/booking_provider.dart';
 import '../../providers/package_provider.dart';
 import '../../widgets/booking/booking_stepper.dart';
-import '../../widgets/common/app_button.dart';
-import '../../widgets/common/app_card.dart';
 import '../../widgets/layout/app_top_bar.dart';
 
-class SelectPackageScreen extends StatefulWidget {
-  const SelectPackageScreen({super.key});
+class SelectPackageScreen extends StatelessWidget {
+  final bool showBackButton;
 
-  @override
-  State<SelectPackageScreen> createState() => _SelectPackageScreenState();
-}
+  const SelectPackageScreen({
+    super.key,
+    this.showBackButton = false,
+  });
 
-class _SelectPackageScreenState extends State<SelectPackageScreen> {
   @override
   Widget build(BuildContext context) {
-    final packageProvider = context.watch<PackageProvider>();
-    final bookingProvider = context.watch<BookingProvider>();
+    final bookingProvider = context.read<BookingProvider>();
+    final packageProvider = context.read<PackageProvider>();
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: const AppTopBar(
+      backgroundColor: Colors.white,
+      appBar: AppTopBar(
         title: 'Alpha Memoria',
-        showBackButton: false,
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Live support chat opened')),
-          );
-        },
-        backgroundColor: const Color(0xFFFF5286),
-        child: const Icon(Icons.chat_bubble_rounded, color: Colors.white),
+        showBackButton: showBackButton,
       ),
       body: SafeArea(
         child: Column(
           children: [
-            // STEPPER: STEP 2 OF 6 Select Package
+            // STEP 1 OF 4: Select Package
             const BookingStepper(
-              currentStep: 2,
-              totalSteps: 6,
+              currentStep: 1,
+              totalSteps: 4,
               stepTitle: 'Select Package',
             ),
 
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Search Bar
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFEDF4FD),
-                        borderRadius: BorderRadius.circular(14),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final isWide = constraints.maxWidth > 650;
+
+                  final card1 = _buildPackageCard(
+                    context: context,
+                    imageAsset: 'assets/images/image 1.png',
+                    name: 'Package 1',
+                    price: '₱9,500',
+                    features: const [
+                      '2 hours of rent',
+                      'Magic Mirror Kiosk',
+                      'Party Props',
+                    ],
+                    onBookNow: () {
+                      final pkg = PackageModel(
+                        id: 'pkg_1',
+                        name: 'Package 1',
+                        price: 9500,
+                        durationHours: 2,
+                        features: [
+                          '2 hours of rent',
+                          'Magic Mirror Kiosk',
+                          'Party Props',
+                        ],
+                        category: 'All Packages',
+                        imageUrl: 'assets/images/image 1.png',
+                        description: 'Standard 2-hour photo booth rental with Magic Mirror Kiosk and party props.',
+                        isFeatured: true,
+                      );
+                      packageProvider.setSelectedPackageDirectly(pkg);
+                      bookingProvider.startNewBooking(pkg);
+                      Navigator.pushNamed(context, AppRoutes.secureDate);
+                    },
+                  );
+
+                  final card2 = _buildPackageCard(
+                    context: context,
+                    imageAsset: 'assets/images/image 2.png',
+                    name: 'Package 2',
+                    price: '₱12,500',
+                    features: const [
+                      '3 hours of rent',
+                      'Magic Mirror Kiosk',
+                      'Party Props',
+                    ],
+                    onBookNow: () {
+                      final pkg = PackageModel(
+                        id: 'pkg_2',
+                        name: 'Package 2',
+                        price: 12500,
+                        durationHours: 3,
+                        features: [
+                          '3 hours of rent',
+                          'Magic Mirror Kiosk',
+                          'Party Props',
+                        ],
+                        category: 'All Packages',
+                        imageUrl: 'assets/images/image 2.png',
+                        description: 'Deluxe 3-hour photo booth rental with Magic Mirror Kiosk and party props.',
+                        isFeatured: true,
+                      );
+                      packageProvider.setSelectedPackageDirectly(pkg);
+                      bookingProvider.startNewBooking(pkg);
+                      Navigator.pushNamed(context, AppRoutes.secureDate);
+                    },
+                  );
+
+                  return Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 860),
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                        child: isWide
+                            ? Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(child: card1),
+                                  const SizedBox(width: 20),
+                                  Expanded(child: card2),
+                                ],
+                              )
+                            : Column(
+                                children: [
+                                  card1,
+                                  const SizedBox(height: 20),
+                                  card2,
+                                  const SizedBox(height: 24),
+                                ],
+                              ),
                       ),
-                      child: TextField(
-                        onChanged: (val) {},
-                        style: AppTextStyles.bodyMedium,
-                        decoration: InputDecoration(
-                          hintText: 'Search for themes or locations...',
-                          hintStyle: AppTextStyles.bodyMedium.copyWith(
-                            color: AppColors.textMuted,
-                            fontSize: 13,
-                          ),
-                          prefixIcon: const Icon(
-                            Icons.search_rounded,
-                            color: AppColors.textMuted,
-                            size: 20,
-                          ),
-                          border: InputBorder.none,
-                          isDense: true,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                      ),
                     ),
-                    const SizedBox(height: 14),
-
-                    // Horizontal Category Chips
-                    SizedBox(
-                      height: 36,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: AppConstants.packageCategories.length,
-                        separatorBuilder: (ctx, i) => const SizedBox(width: 8),
-                        itemBuilder: (ctx, index) {
-                          final cat = AppConstants.packageCategories[index];
-                          final isSelected = cat == packageProvider.selectedCategory;
-                          return ChoiceChip(
-                            label: Text(cat),
-                            selected: isSelected,
-                            selectedColor: AppColors.primary,
-                            backgroundColor: const Color(0xFFDDE8F8),
-                            labelStyle: AppTextStyles.caption.copyWith(
-                              color: isSelected ? Colors.white : AppColors.primaryDark,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                              fontSize: 12,
-                            ),
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(18),
-                              side: BorderSide.none,
-                            ),
-                            onSelected: (selected) {
-                              if (selected) {
-                                packageProvider.loadPackages(category: cat);
-                              }
-                            },
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Package Card 1: Starter Celebration
-                    _buildStarterCard(
-                      context,
-                      onBook: () {
-                        final starterPkg = packageProvider.packages.firstWhere(
-                          (p) => p.id == 'pkg_starter',
-                          orElse: () => packageProvider.packages.first,
-                        );
-                        bookingProvider.startNewBooking(starterPkg);
-                        Navigator.pushNamed(context, AppRoutes.secureDate);
-                      },
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Package Card 2: Ultimate Gala / Premium Experience
-                    _buildUltimateGalaCard(
-                      context,
-                      onSelect: () {
-                        final glamPkg = packageProvider.packages.firstWhere(
-                          (p) => p.id == 'pkg_glam',
-                          orElse: () => packageProvider.packages.first,
-                        );
-                        bookingProvider.startNewBooking(glamPkg);
-                        Navigator.pushNamed(context, AppRoutes.secureDate);
-                      },
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Package Card 3: Eternal Vows Bundle
-                    _buildEternalVowsCard(
-                      context,
-                      onPreview: () {
-                        final eternalPkg = packageProvider.packages.firstWhere(
-                          (p) => p.id == 'pkg_eternal',
-                          orElse: () => packageProvider.packages.first,
-                        );
-                        bookingProvider.startNewBooking(eternalPkg);
-                        Navigator.pushNamed(context, AppRoutes.customizeDesign);
-                      },
-                      onBook: () {
-                        final eternalPkg = packageProvider.packages.firstWhere(
-                          (p) => p.id == 'pkg_eternal',
-                          orElse: () => packageProvider.packages.first,
-                        );
-                        bookingProvider.startNewBooking(eternalPkg);
-                        Navigator.pushNamed(context, AppRoutes.secureDate);
-                      },
-                    ),
-                    const SizedBox(height: 40),
-                  ],
-                ),
+                  );
+                },
               ),
             ),
           ],
@@ -179,371 +140,123 @@ class _SelectPackageScreenState extends State<SelectPackageScreen> {
     );
   }
 
-  Widget _buildStarterCard(BuildContext context, {required VoidCallback onBook}) {
-    return AppCard(
-      padding: EdgeInsets.zero,
+  Widget _buildPackageCard({
+    required BuildContext context,
+    required String imageAsset,
+    required String name,
+    required String price,
+    required List<String> features,
+    required VoidCallback onBookNow,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Stack(
-            children: [
-              ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                child: Image.network(
-                  'https://images.unsplash.com/photo-1511795409834-ef04bbd61622',
-                  height: 160,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (c, e, s) => Container(
-                    height: 160,
-                    color: AppColors.primaryLight,
-                    child: const Icon(Icons.camera_alt_rounded, size: 40, color: AppColors.primary),
+          // Package Image
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+            child: SizedBox(
+              height: 180,
+              width: double.infinity,
+              child: Image.asset(
+                imageAsset,
+                fit: BoxFit.cover,
+                errorBuilder: (ctx, err, stack) => Container(
+                  color: const Color(0xFFEDF2F7),
+                  child: const Center(
+                    child: Icon(Icons.photo_library_outlined, size: 40, color: Color(0xFF94A3B8)),
                   ),
                 ),
               ),
-              Positioned(
-                top: 12,
-                right: 12,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    '₱199 / Event',
-                    style: AppTextStyles.caption.copyWith(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
+
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Header: Name & Price
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Starter Celebration',
-                      style: AppTextStyles.headingSmall.copyWith(fontSize: 18),
-                    ),
-                    const Icon(Icons.favorite_border_rounded, color: AppColors.textMuted, size: 22),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                _buildCheckItem('2 Hours Runtime'),
-                const SizedBox(height: 6),
-                _buildCheckItem('Digital Delivery via Email/SMS'),
-                const SizedBox(height: 6),
-                _buildCheckItem('Standard Backdrop'),
-                const SizedBox(height: 16),
-                AppButton(
-                  text: 'Book Now',
-                  onPressed: onBook,
-                  height: 44,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCheckItem(String text) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(2),
-          decoration: const BoxDecoration(
-            color: AppColors.primaryLight,
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(Icons.check_rounded, color: AppColors.primary, size: 14),
-        ),
-        const SizedBox(width: 10),
-        Text(
-          text,
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textPrimary,
-            fontSize: 13,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildUltimateGalaCard(BuildContext context, {required VoidCallback onSelect}) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.primary, width: 2),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withOpacity(0.12),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          )
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(
-            children: [
-              ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
-                child: Image.network(
-                  'https://images.unsplash.com/photo-1492684223066-81342ee5ff30',
-                  height: 200,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (c, e, s) => Container(
-                    height: 200,
-                    color: AppColors.primaryDark,
-                    child: const Icon(Icons.star_rounded, size: 48, color: Colors.white),
-                  ),
-                ),
-              ),
-              Container(
-                height: 200,
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.black.withOpacity(0.2),
-                      Colors.black.withOpacity(0.85),
-                    ],
-                  ),
-                ),
-              ),
-              // Top Ribbon Badge
-              Align(
-                alignment: Alignment.topCenter,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFD81B60),
-                    borderRadius: BorderRadius.vertical(bottom: Radius.circular(12)),
-                  ),
-                  child: Text(
-                    'Most Popular',
-                    style: AppTextStyles.caption.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 11,
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                bottom: 16,
-                left: 16,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'PREMIUM EXPERIENCE',
-                      style: AppTextStyles.caption.copyWith(
-                        color: Colors.white70,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1,
-                        fontSize: 10,
+                      name,
+                      style: const TextStyle(
+                        color: AppColors.textPrimary,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
-                    const SizedBox(height: 2),
                     Text(
-                      'Ultimate Gala',
-                      style: AppTextStyles.headingMedium.copyWith(
-                        color: Colors.white,
-                        fontSize: 22,
+                      price,
+                      style: const TextStyle(
+                        color: AppColors.primaryNavy,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
                   ],
-                ),
-              ),
-              Positioned(
-                bottom: 16,
-                right: 16,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.65),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.white30),
-                  ),
-                  child: Text(
-                    '₱449',
-                    style: AppTextStyles.headingSmall.copyWith(
-                      color: Colors.white,
-                      fontSize: 18,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildFeatureIcon(Icons.access_time_rounded, '4 Hours'),
-                _buildFeatureIcon(Icons.print_rounded, 'Unlimited Prints'),
-                _buildFeatureIcon(Icons.people_rounded, 'On-site Attendant'),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: AppButton(
-              text: 'Book Now',
-              onPressed: onSelect,
-              height: 44,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFeatureIcon(IconData icon, String label) {
-    return Column(
-      children: [
-        Icon(icon, size: 20, color: AppColors.primary),
-        const SizedBox(width: 4),
-        Text(
-          label,
-          style: AppTextStyles.caption.copyWith(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.w600,
-            fontSize: 11,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildEternalVowsCard(
-    BuildContext context, {
-    required VoidCallback onPreview,
-    required VoidCallback onBook,
-  }) {
-    return AppCard(
-      padding: EdgeInsets.zero,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Stack(
-                    children: [
-                      Image.network(
-                        'https://images.unsplash.com/photo-1519741497674-611481863552',
-                        height: 170,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        errorBuilder: (c, e, s) => Container(
-                          height: 170,
-                          color: AppColors.primaryLight,
-                          child: const Icon(Icons.favorite_rounded, size: 40, color: AppColors.primary),
-                        ),
-                      ),
-                      Positioned(
-                        top: 10,
-                        right: 10,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFC2185B),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Text(
-                            'Wedding Special',
-                            style: AppTextStyles.caption.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 11,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Eternal Vows Bundle',
-                      style: AppTextStyles.headingSmall.copyWith(fontSize: 18),
-                    ),
-                    const Icon(Icons.favorite_rounded, color: Color(0xFFC2185B), size: 22),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Tailored for your special day with elegant floral themes and guest book service.',
-                  style: AppTextStyles.bodyMedium.copyWith(fontSize: 13),
                 ),
                 const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Text(
-                      '₱799',
-                      style: AppTextStyles.headingMedium.copyWith(
-                        color: AppColors.primary,
-                        fontSize: 22,
-                      ),
+
+                // Feature bullet points
+                ...features.map(
+                  (feature) => Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.check_circle_outline_rounded,
+                          size: 16,
+                          color: AppColors.primaryNavy,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          feature,
+                          style: const TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 10),
-                    Text(
-                      '₱950',
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        decoration: TextDecoration.lineThrough,
-                        color: AppColors.textMuted,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
                 const SizedBox(height: 14),
+
+                // Book Now button
                 SizedBox(
                   width: double.infinity,
                   height: 44,
-                  child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Color(0xFFD81B60), width: 1.5),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+                  child: ElevatedButton(
+                    onPressed: onBookNow,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryNavy,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
-                    onPressed: onPreview,
-                    child: Text(
-                      'Preview Frames',
-                      style: AppTextStyles.button.copyWith(
-                        color: const Color(0xFFD81B60),
+                    child: const Text(
+                      'Book Now',
+                      style: TextStyle(
                         fontSize: 14,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),

@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/constants/app_text_styles.dart';
 
 class BookingStepper extends StatelessWidget {
-  final int currentStep; // 1 to 6
-  final int totalSteps; // 6
+  final int currentStep; // 1 to 4
+  final int totalSteps; // 4
   final String stepTitle;
 
   const BookingStepper({
     super.key,
     required this.currentStep,
-    this.totalSteps = 6,
+    this.totalSteps = 4,
     required this.stepTitle,
   });
 
@@ -18,7 +17,7 @@ class BookingStepper extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -27,18 +26,18 @@ class BookingStepper extends StatelessWidget {
             children: [
               Text(
                 'STEP $currentStep OF $totalSteps',
-                style: AppTextStyles.caption.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 0.5,
+                style: const TextStyle(
+                  color: AppColors.primaryNavy,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.6,
                   fontSize: 11,
                 ),
               ),
               Text(
                 stepTitle,
-                style: AppTextStyles.caption.copyWith(
+                style: const TextStyle(
                   color: AppColors.textSecondary,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                   fontSize: 11,
                 ),
               ),
@@ -49,8 +48,8 @@ class BookingStepper extends StatelessWidget {
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
               value: currentStep / totalSteps,
-              backgroundColor: AppColors.border,
-              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+              backgroundColor: const Color(0xFFE2E8F0),
+              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primaryNavy),
               minHeight: 4,
             ),
           ),

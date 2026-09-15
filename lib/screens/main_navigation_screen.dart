@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../widgets/layout/bottom_nav_bar.dart';
 import 'home/home_screen.dart';
-import 'alerts/alerts_screen.dart';
-import 'profile/profile_screen.dart';
 import 'booking/select_package_screen.dart';
+import 'appointment/appointment_screen.dart';
+import 'profile/profile_screen.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   final int initialTab;
@@ -26,18 +26,20 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     _currentIndex = widget.initialTab;
   }
 
+  void _onTabChanged(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
       HomeScreen(
-        onNavigateTab: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
+        onNavigateTab: _onTabChanged,
       ),
       const SelectPackageScreen(),
-      const AlertsScreen(),
+      const AppointmentScreen(showBottomNav: false),
       const ProfileScreen(),
     ];
 
@@ -48,11 +50,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       ),
       bottomNavigationBar: BottomNavBar(
         currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
+        onTap: _onTabChanged,
       ),
     );
   }
