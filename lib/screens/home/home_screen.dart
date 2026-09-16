@@ -1,19 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/constants/app_constants.dart';
 import '../../core/constants/app_text_styles.dart';
 import '../../core/routes/app_routes.dart';
 import '../../core/utils/date_formatter.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/booking_provider.dart';
-import '../../providers/package_provider.dart';
 import '../../widgets/common/app_card.dart';
 import '../../widgets/common/app_avatar.dart';
 import '../../widgets/common/status_badge.dart';
-import '../../widgets/home/home_search_bar.dart';
-import '../../widgets/home/package_card.dart';
-import '../../widgets/home/trending_designs_grid.dart';
 
 class HomeScreen extends StatelessWidget {
   final Function(int tabIndex)? onNavigateTab;
@@ -26,12 +21,12 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
-    final packageProvider = context.watch<PackageProvider>();
     final bookingProvider = context.watch<BookingProvider>();
 
     final user = authProvider.user;
     final userName = user != null ? user.firstName : 'Juanita';
     final upcomingBooking = bookingProvider.upcomingBooking;
+    final isApproved = upcomingBooking?.status.toLowerCase() == 'approved';
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -97,11 +92,9 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
-              // Upcoming Event Card (if available)
+              // My Appointment Card
               if (upcomingBooking != null) ...[
                 AppCard(
-                  backgroundColor: AppColors.primarySubtle,
-                  border: const BorderSide(color: AppColors.primaryLight, width: 1.5),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -109,41 +102,44 @@ class HomeScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                             decoration: BoxDecoration(
                               color: AppColors.primary,
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
-                              'NEXT EVENT • ${DateFormatter.formatRelativeDays(upcomingBooking.date)}',
+                              'MY APPOINTMENT',
                               style: AppTextStyles.caption.copyWith(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 10,
+                                fontSize: 11,
+                                letterSpacing: 0.5,
                               ),
                             ),
                           ),
                           StatusBadge(status: upcomingBooking.status),
                         ],
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 14),
                       Text(
                         upcomingBooking.eventType,
-                        style: AppTextStyles.headingSmall,
+                        style: AppTextStyles.headingSmall.copyWith(fontSize: 22),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 8),
                       Row(
                         children: [
                           const Icon(Icons.calendar_today_rounded,
                               size: 14, color: AppColors.textSecondary),
                           const SizedBox(width: 6),
-                          Text(
-                            '${DateFormatter.formatShortDate(upcomingBooking.date)} • ${upcomingBooking.venueLocation}',
-                            style: AppTextStyles.caption,
+                          Expanded(
+                            child: Text(
+                              '${DateFormatter.formatShortDate(upcomingBooking.date)} • ${upcomingBooking.venueLocation}',
+                              style: AppTextStyles.caption,
+                            ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 14),
                       Align(
                         alignment: Alignment.centerRight,
                         child: TextButton.icon(
@@ -163,113 +159,168 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-              ],
 
-              // Search Bar
-              const HomeSearchBar(),
-              const SizedBox(height: 20),
-
-              // Package Categories Horizontal Filter
-              SizedBox(
-                height: 38,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: AppConstants.packageCategories.length,
-                  separatorBuilder: (ctx, i) => const SizedBox(width: 8),
-                  itemBuilder: (ctx, index) {
-                    final cat = AppConstants.packageCategories[index];
-                    final isSelected = cat == packageProvider.selectedCategory;
-                    return ChoiceChip(
-                      label: Text(cat),
-                      selected: isSelected,
-                      selectedColor: AppColors.primary,
-                      backgroundColor: Colors.white,
-                      labelStyle: AppTextStyles.caption.copyWith(
-                        color: isSelected ? Colors.white : AppColors.textPrimary,
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                // Appointment Progress Card
+                const Text(
+                  'APPOINTMENT PROGRESS',
+                  style: TextStyle(
+                    color: AppColors.textMuted,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.6,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                AppCard(
+                  child: Column(
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: isApproved
+                                  ? const Color(0xFFECFDF5)
+                                  : AppColors.badgeAmberBg,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              isApproved ? Icons.check_rounded : Icons.schedule_rounded,
+                              color: isApproved ? AppColors.success : AppColors.badgeAmberText,
+                              size: 16,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  isApproved ? 'Receipt Verified' : 'Pending',
+                                  style: const TextStyle(
+                                    color: AppColors.textPrimary,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  isApproved
+                                      ? 'Payment receipt verified successfully.'
+                                      : 'Waiting for confirmation of the receipt.',
+                                  style: const TextStyle(
+                                    color: AppColors.textSecondary,
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: isApproved
+                                  ? const Color(0xFFECFDF5)
+                                  : AppColors.badgeAmberBg,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              isApproved ? 'VERIFIED' : 'PENDING',
+                              style: TextStyle(
+                                color: isApproved ? AppColors.success : AppColors.badgeAmberText,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        side: BorderSide(
-                          color: isSelected ? AppColors.primary : AppColors.border,
+                      Container(
+                        margin: const EdgeInsets.only(left: 13, top: 4, bottom: 4),
+                        alignment: Alignment.centerLeft,
+                        child: Container(
+                          width: 2,
+                          height: 20,
+                          color: isApproved ? AppColors.success : const Color(0xFFE2E8F0),
                         ),
                       ),
-                      onSelected: (selected) {
-                        if (selected) {
-                          packageProvider.loadPackages(category: cat);
-                        }
-                      },
-                    );
-                  },
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: isApproved
+                                  ? const Color(0xFFECFDF5)
+                                  : AppColors.badgeGreyBg,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.check_rounded,
+                              color: isApproved ? AppColors.success : AppColors.badgeGreyText,
+                              size: 16,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Approved',
+                                  style: TextStyle(
+                                    color: isApproved
+                                        ? AppColors.textPrimary
+                                        : AppColors.textSecondary,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  isApproved
+                                      ? 'Booking confirmed! Our crew is assigned to your event.'
+                                      : 'Booking officially confirmed once payment receipt is verified.',
+                                  style: const TextStyle(
+                                    color: AppColors.textSecondary,
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: isApproved
+                                  ? const Color(0xFFECFDF5)
+                                  : AppColors.badgeGreyBg,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              isApproved ? 'CONFIRMED' : 'Awaiting Review',
+                              style: TextStyle(
+                                color: isApproved ? AppColors.success : AppColors.badgeGreyText,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 20),
-
-              // Featured Packages List
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Featured Packages', style: AppTextStyles.headingSmall),
-                  TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      'See All',
-                      style: AppTextStyles.caption.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+              ] else ...[
+                const SizedBox(height: 40),
+                Center(
+                  child: Text(
+                    'No upcoming appointments yet.',
+                    style: AppTextStyles.caption,
                   ),
-                ],
-              ),
-              const SizedBox(height: 8),
-
-              if (packageProvider.isLoading)
-                const Center(child: CircularProgressIndicator())
-              else
-                ...packageProvider.packages.map((pkg) => Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: PackageCard(
-                        package: pkg,
-                        onTap: () {
-                          packageProvider.setSelectedPackageDirectly(pkg);
-                          Navigator.pushNamed(context, AppRoutes.packageDetail);
-                        },
-                        onBookNow: () {
-                          bookingProvider.startNewBooking(pkg);
-                          onNavigateTab?.call(1);
-                        },
-                      ),
-                    )),
-
-              const SizedBox(height: 12),
-
-              // Trending Designs Grid
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Trending Designs', style: AppTextStyles.headingSmall),
-                  TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      'See All',
-                      style: AppTextStyles.caption.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              TrendingDesignsGrid(
-                designs: packageProvider.trendingDesigns,
-                onDesignTap: (title) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Selected theme: $title')),
-                  );
-                },
-              ),
+                ),
+              ],
               const SizedBox(height: 20),
             ],
           ),
