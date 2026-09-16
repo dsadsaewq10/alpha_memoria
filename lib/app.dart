@@ -28,7 +28,7 @@ class AlphaMemoriaApp extends StatelessWidget {
           iconTheme: IconThemeData(color: AppColors.textPrimary),
         ),
       ),
-      initialRoute: AppRoutes.welcome,
+      initialRoute: AppRoutes.mainNav,
       onGenerateRoute: AppRoutes.onGenerateRoute,
     );
   }

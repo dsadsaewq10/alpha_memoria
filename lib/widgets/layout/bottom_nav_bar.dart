@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/constants/app_text_styles.dart';
-import '../../providers/alert_provider.dart';
 
 class BottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -16,18 +13,17 @@ class BottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final alertProvider = context.watch<AlertProvider>();
-    final unreadAlerts = alertProvider.unreadCount;
-
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        border: const Border(top: BorderSide(color: AppColors.border, width: 1)),
+        border: const Border(
+          top: BorderSide(color: Color(0xFFEDF2F7), width: 1),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
-            offset: const Offset(0, -4),
+            offset: const Offset(0, -2),
           ),
         ],
       ),
@@ -35,29 +31,32 @@ class BottomNavBar extends StatelessWidget {
         top: false,
         child: Container(
           height: 64,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildNavItem(
                 index: 0,
-                icon: Icons.home_rounded,
+                icon: Icons.home_outlined,
+                activeIcon: Icons.home_rounded,
                 label: 'Home',
               ),
               _buildNavItem(
                 index: 1,
-                icon: Icons.calendar_month_rounded,
+                icon: Icons.calendar_month_outlined,
+                activeIcon: Icons.calendar_month_rounded,
                 label: 'Bookings',
               ),
               _buildNavItem(
                 index: 2,
-                icon: Icons.notifications_rounded,
-                label: 'Alerts',
-                badgeCount: unreadAlerts,
+                icon: Icons.assignment_outlined,
+                activeIcon: Icons.assignment_rounded,
+                label: 'Appointment',
               ),
               _buildNavItem(
                 index: 3,
-                icon: Icons.person_rounded,
+                icon: Icons.person_outline_rounded,
+                activeIcon: Icons.person_rounded,
                 label: 'Profile',
               ),
             ],
@@ -70,70 +69,39 @@ class BottomNavBar extends StatelessWidget {
   Widget _buildNavItem({
     required int index,
     required IconData icon,
+    required IconData activeIcon,
     required String label,
-    int badgeCount = 0,
   }) {
     final isSelected = currentIndex == index;
 
-    return InkWell(
+    return GestureDetector(
       onTap: () => onTap(index),
-      borderRadius: BorderRadius.circular(16),
+      behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
+          color: isSelected ? AppColors.primaryNavy : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
         ),
-        child: Row(
+        child: Column(
           mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Icon(
-                  icon,
-                  color: isSelected ? Colors.white : AppColors.textSecondary,
-                  size: 22,
-                ),
-                if (badgeCount > 0)
-                  Positioned(
-                    right: -4,
-                    top: -4,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: AppColors.error,
-                        shape: BoxShape.circle,
-                      ),
-                      constraints: const BoxConstraints(
-                        minWidth: 14,
-                        minHeight: 14,
-                      ),
-                      child: Text(
-                        '$badgeCount',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 9,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-              ],
+            Icon(
+              isSelected ? activeIcon : icon,
+              color: isSelected ? Colors.white : const Color(0xFF8A99AD),
+              size: 20,
             ),
-            if (isSelected) ...[
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: AppTextStyles.caption.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                ),
+            const SizedBox(height: 3),
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? Colors.white : const Color(0xFF8A99AD),
+                fontSize: 10,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
               ),
-            ],
+            ),
           ],
         ),
       ),

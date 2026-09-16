@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/constants/app_text_styles.dart';
 
 class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -21,31 +20,33 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: Colors.white,
       elevation: 0,
-      centerTitle: true,
-      scrolledUnderElevation: 0.5,
+      centerTitle: false,
+      titleSpacing: showBackButton ? 0 : 20,
+      scrolledUnderElevation: 0,
       leading: showBackButton
           ? IconButton(
               icon: Container(
                 padding: const EdgeInsets.all(6),
                 decoration: const BoxDecoration(
-                  color: AppColors.background,
+                  color: AppColors.scaffoldBackground,
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.arrow_back_ios_new_rounded,
-                    size: 16, color: AppColors.textPrimary),
+                    size: 16, color: AppColors.primaryNavy),
               ),
               onPressed: onBackPressed ?? () => Navigator.maybePop(context),
             )
           : null,
       title: Text(
         title,
-        style: AppTextStyles.headingSmall.copyWith(fontSize: 18),
+        style: const TextStyle(
+          color: AppColors.primaryNavy,
+          fontSize: 19,
+          fontWeight: FontWeight.w800,
+          letterSpacing: -0.3,
+        ),
       ),
       actions: actions,
-      bottom: PreferredSize(
-        preferredSize: const Size.fromHeight(1),
-        child: Container(color: AppColors.border, height: 1),
-      ),
     );
   }
 
